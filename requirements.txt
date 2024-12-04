@@ -6,4 +6,3 @@ rdkit
 py3Dmol>=2.0.0
 stmol>=0.0.9
 networkx>=3.2.1
-rdkit-pypi

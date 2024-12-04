@@ -5,4 +5,6 @@ plotly>=5.18.0
 rdkit
 py3Dmol>=2.0.0
 stmol>=0.0.9
-networkx>=3.2.1
+networkx
+ipython
+ipython_genutils

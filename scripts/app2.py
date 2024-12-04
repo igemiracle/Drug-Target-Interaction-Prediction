@@ -125,7 +125,7 @@ def create_app():
         with st.spinner('Running prediction model... Please wait.'):
             progress_bar = st.progress(0)
             for i in range(100):
-                time.sleep(0.08)
+                time.sleep(0.1)
                 progress_bar.progress(i + 1)
             
             # 使用预定义的药物列表和概率

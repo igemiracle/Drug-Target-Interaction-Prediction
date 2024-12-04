@@ -1,0 +1,5 @@
+libxrender1
+libxext6
+python3-rdkit
+libxrender-dev
+libxext-dev

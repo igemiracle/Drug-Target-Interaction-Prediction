@@ -8,3 +8,4 @@ stmol>=0.0.9
 networkx
 ipython
 ipython_genutils
+matplotlib

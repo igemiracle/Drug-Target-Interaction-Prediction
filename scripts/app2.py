@@ -35,7 +35,12 @@ def fetch_drug_properties(drug_name: str) -> Dict:
     return None
 
 def generate_results(drugs: List[str], probabilities: List[float]) -> Dict[str, Any]:
-    """使用真实PubChem数据生成结果"""
+    """使用PubChem数据生成结果，添加进度显示"""
+    
+    st.markdown("### 🔄 Fetching Data from PubChem")
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
     results = {
         'drug_name': drugs,
         'probability': probabilities,
@@ -45,12 +50,16 @@ def generate_results(drugs: List[str], probabilities: List[float]) -> Dict[str, 
             'LogP': [],
             'HBD': [],
         },
-        'similarity': np.zeros((len(drugs), len(drugs))),  # 药物相似度矩阵
+        'similarity': np.zeros((len(drugs), len(drugs))),
     }
     
-    # 获取化学属性
+    # 获取化学属性，显示进度
     drug_data = {}
-    for drug_name in drugs:
+    for idx, drug_name in enumerate(drugs):
+        status_text.text(f"Fetching data for {drug_name}...")
+        progress = (idx + 1) / len(drugs)
+        progress_bar.progress(progress)
+        
         properties = fetch_drug_properties(drug_name)
         if properties:
             results['chemical_properties']['MW'].append(properties['MW'])
@@ -58,7 +67,6 @@ def generate_results(drugs: List[str], probabilities: List[float]) -> Dict[str, 
             results['chemical_properties']['HBD'].append(properties.get('HBD', 0))
             drug_data[drug_name] = properties
         else:
-            # 如果无法获取数据，使用默认值
             results['chemical_properties']['MW'].append(0)
             results['chemical_properties']['LogP'].append(0)
             results['chemical_properties']['HBD'].append(0)
@@ -125,7 +133,7 @@ def create_app():
         with st.spinner('Running prediction model... Please wait.'):
             progress_bar = st.progress(0)
             for i in range(100):
-                time.sleep(0.1)
+                time.sleep(0.05)
                 progress_bar.progress(i + 1)
             
             # 使用预定义的药物列表和概率
@@ -207,7 +215,16 @@ def visualize_results(results: Dict[str, Any]):
         create_detailed_results_table(results)
 
 def create_similarity_network(results: Dict[str, Any]):
-    """优化3D网络可视化"""
+    # 添加说明文字
+    st.markdown("""
+    This visualization shows the relationships between drugs in 3D space:
+    - Each **node** represents a drug
+    - **Node color/size** indicates binding probability (darker/larger = higher probability)
+    - **Connecting lines** show structural similarity between drugs (Tanimoto coefficient > 0.5)
+    - **Data source**: Chemical structures from PubChem, used for similarity calculation
+    """)
+    
+    # 创建之前的3D网络图...
     fig = go.Figure(data=[go.Scatter3d(
         x=[pos[0] for pos in results['network_positions'].values()],
         y=[pos[1] for pos in results['network_positions'].values()],
@@ -217,12 +234,13 @@ def create_similarity_network(results: Dict[str, Any]):
             size=10,
             color=results['probability'],
             colorscale='Viridis',
-            showscale=True
+            showscale=True,
+            colorbar=dict(title="Binding Probability")
         ),
         text=results['drug_name'],
         hoverinfo='text'
     )])
-    
+
     # 添加连接线
     edges_x, edges_y, edges_z = [], [], []
     for i in range(len(results['drug_name'])):
@@ -253,16 +271,24 @@ def create_similarity_network(results: Dict[str, Any]):
     st.plotly_chart(fig, use_container_width=True)
 
 def create_property_correlation(results: Dict[str, Any]):
-    """优化属性相关性图"""
+    """创建属性相关性分析可视化"""
+    
+    st.markdown("""
+    - **X-axis**: Molecular Weight (MW) from PubChem
+    - **Y-axis**: LogP (lipophilicity) from PubChem
+    - **Bubble size/color**: Predicted binding probability
+    - Helps identify if certain physical properties correlate with binding probability
+    """)
+    
     fig = px.scatter(
         x=results['chemical_properties']['MW'],
         y=results['chemical_properties']['LogP'],
         size=results['probability'],
         color=results['probability'],
         labels={
-            'x': 'Molecular Weight',
-            'y': 'LogP',
-            'color': 'Probability'
+            'x': 'Molecular Weight (from PubChem)',
+            'y': 'LogP (from PubChem)',
+            'color': 'Binding Probability'
         },
         text=results['drug_name']
     )
@@ -281,7 +307,13 @@ def create_property_correlation(results: Dict[str, Any]):
     st.plotly_chart(fig, use_container_width=True)
 
 def create_probability_distribution(results: Dict[str, Any]):
-    """优化概率分布图"""
+    """创建概率分布可视化"""
+    
+    st.markdown("""
+    ### 📈 Binding Probability Distribution
+    This bar chart shows the predicted binding probabilities:
+        """)
+    
     fig = go.Figure()
     
     fig.add_trace(go.Bar(

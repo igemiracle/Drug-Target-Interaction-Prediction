@@ -2,8 +2,8 @@ streamlit>=1.29.0
 pandas>=2.0.0
 numpy>=1.24.0
 plotly>=5.18.0
-rdkit>=2023.9.1
+rdkit
 py3Dmol>=2.0.0
 stmol>=0.0.9
 networkx>=3.2.1
-rdkit-pypi>=2023.9.1
+rdkit-pypi

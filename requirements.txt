@@ -9,3 +9,5 @@ networkx
 ipython
 ipython_genutils
 matplotlib
+pubchempy>=1.0.4
+requests

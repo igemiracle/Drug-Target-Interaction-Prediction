@@ -82,17 +82,7 @@ dti-prediction/
 - Yuning Zheng
 - Zhuoqun Li
 
-## 📚 Citation
 
-If you use this code in your research, please cite our work:
-
-```bibtex
-@article{liu2024predictive,
-  title={Predictive Modelling of Drug Target Interaction},
-  author={Liu, Chang and Ma, Yitian and Yang, Yinuo and Zheng, Yuning and Li, Zhuoqun},
-  year={2024}
-}
-```
 
 ## 📄 License
 
